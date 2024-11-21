@@ -4,13 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import ROUTES from "../app/routes";
 // import selectors
+import { selectTopics } from "../features/topics/topicsSlice";
+import { addQuiz } from "../features/quizzes/quizzesSlice";
+import { addCard } from "../features/cards/cardsSlice";
 
 export default function NewQuizForm() {
   const [name, setName] = useState("");
   const [cards, setCards] = useState([]);
   const [topicId, setTopicId] = useState("");
   const navigate = useNavigate();
-  const topics = {};  // Replace with topics 
+  const topics = useSelector(selectTopics);  // Replace with topics
   const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
@@ -23,10 +26,45 @@ export default function NewQuizForm() {
 
     // create the new cards here and add each card's id to cardIds
     // create the new quiz here
+    cards.forEach((card) => {
+      let cardId = uuidv4();
+      cardIds.push(cardId);
+      console.log("Dispatching addCard:", { id: cardId, front: card.front, back: card.back });
+      dispatch(addCard({ id: cardId, front: card.front, back: card.back }));
+    });
 
     const quizId = uuidv4();
 
-    // dispatch add quiz action 
+    console.log("topicId:", topicId);
+
+    // dispatch add quiz action
+    console.log("Dispatching addQuiz:", { id: quizId, title: name, topicId, cardIds });
+    dispatch(
+      addQuiz({
+        id: quizId,
+        title: name,
+        topicId,
+        cardIds,
+      })
+    );
+
+    // navigate to the quiz page
+    // use the navigate function from react-router-dom to navigate to the quiz page
+    // replace the quizId with the id of the newly created quiz
+    // e.g. navigate(`/quizzes/${quizId}`)
+    // or navigate(ROUTES.quizRoute(quizId))
+
+    // clear form state
+    setName("");
+    setCards([]);
+    setTopicId("");
+
+    // navigate back to the quizzes page
+    // use the navigate function from react-router-dom to navigate back to the quizzes page
+    // e.g. navigate(ROUTES.quizzesRoute())
+    // or navigate(ROUTES.quizzesRoute())
+
+    // you can also use the replace method to replace the current page in the browser history
 
     navigate(ROUTES.quizzesRoute())
   };
